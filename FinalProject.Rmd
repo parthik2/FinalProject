@@ -1,0 +1,14 @@
+```{r read_in_data, echo=TRUE, cache=TRUE}
+install.packages('gdata')
+library(gdata)
+# read in the data
+dem_data = read.xls('school_demographics.xlsx')
+ela_data = read.csv('school_ELA_all.csv')
+math_data = read.csv('school_MATH_all.csv')
+```
+
+```{r clean_data, echo=TRUE}
+data = merge(dem_data, ela_data, by = 'DBN')
+data = merge(data, math_data, by = 'DBN')
+```
+
