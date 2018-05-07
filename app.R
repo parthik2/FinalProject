@@ -7,9 +7,9 @@
 #    http://shiny.rstudio.com/
 #
 
-setwd("/Users/AjaySuresh/NYC_Public_Schools/")
+#setwd("/Users/AjaySuresh/NYC_Public_Schools/")
 
-dataset = read.csv('SCHOOL_FULL_DATA.csv')
+dat = read.csv('SCHOOL_FULL_DATA.csv')
 
 library(shiny)
 library(ggplot2)
@@ -49,31 +49,31 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-
+  
   linReg = reactive({
     if(input$ds == "Ethnicity - African American"){
-     linearMod = lm(MAT_mean_score ~ Black, data = dataset)
-     summary(linearMod)
+      linearMod = lm(MAT_mean_score ~ Black, data = dat)
+      summary(linearMod)
     }
     else if(input$ds=="Ethnicity - Asian")
     {
-      linearMod = lm(MAT_mean_score ~ Asian, data = dataset)
+      linearMod = lm(MAT_mean_score ~ Asian, data = dat)
       summary(linearMod)
     }
     else if(input$ds == "Ethnicity - White")
     {
-      linearMod = lm(MAT_mean_score ~ White, data = dataset)
+      linearMod = lm(MAT_mean_score ~ White, data = dat)
       summary(linearMod)
     }
     else if(input$ds == "Ethnicity - Hispanic")
     {
-      linearMod = lm(MAT_mean_score ~ Hispanic, data = dataset)
+      linearMod = lm(MAT_mean_score ~ Hispanic, data = dat)
       summary(linearMod)
     }
   })
   
-  p = reactive({
-     if(input$ds == "Poverty - Distribution"){
+  p2 = reactive({
+    if(input$ds == "Poverty - Distribution"){
       p = sum(dat$Poverty)
       np = sum(1-dat$Poverty)
       dat$num_pov = dat$Poverty * dat$Total.Enrollment
@@ -90,7 +90,7 @@ server <- function(input, output) {
           n_np = n_np + num
         }
       }
-      Percents = c(p, (n-p)) / n
+      Percents = c(p, (n_np-p)) / n_np
       Numbers = c(n_p, n_np)
       labels = c("Poverty", "Not Poverty")
       df = data.frame(Percents, Numbers, labels)
@@ -108,7 +108,7 @@ server <- function(input, output) {
       plt3 = ggplot(dat, aes(MAT_mean_score, fill=(Poverty<.5))) + 
         geom_histogram() +
         labs(title="School Mean Test Score -- Poverty")
-      plt3
+      #plt3
       grid.arrange(plt2, plt3, ncol=2)
       
     }
@@ -143,7 +143,7 @@ server <- function(input, output) {
       grid.arrange(plt1, plt2, ncol=2)
     }
     else if(input$ds == "Ethnicity - Hispanic"){
-       ggplot(dat, aes(x=Hispanic, y=MAT_mean_score, color=("red"), fill=FALSE, alpha=.25)) +
+      ggplot(dat, aes(x=Hispanic, y=MAT_mean_score, color=("red"), fill=FALSE, alpha=.25)) +
         geom_point() +
         labs(title="Test Score -- Ethnicity") +
         theme(legend.position="none")
@@ -153,7 +153,7 @@ server <- function(input, output) {
         labs(title="Test Score -- Ethnicity")
     }
     else if(input$ds == "Ethnicity - Asian"){
-       ggplot(dat, aes(x=Asian, y=MAT_mean_score, color=("red"), fill=FALSE, alpha=.25)) +
+      ggplot(dat, aes(x=Asian, y=MAT_mean_score, color=("red"), fill=FALSE, alpha=.25)) +
         geom_point() +
         labs(title="Test Score -- Ethnicity") +
         theme(legend.position="none")
@@ -165,18 +165,18 @@ server <- function(input, output) {
       
     }
     else if(input$ds == "Ethnicity - White"){
-       ggplot(dat, aes(x=White, y=MAT_mean_score, color=("red"), fill=FALSE, alpha=.25)) +
+      ggplot(dat, aes(x=White, y=MAT_mean_score, color=("red"), fill=FALSE, alpha=.25)) +
         geom_point() +
         labs(title="Test Score -- Poverty") +
         theme(legend.position="none")
       
-        ggplot(dat, aes(x=White, y=MAT_mean_score, color=(Poverty<.5), fill=FALSE, alpha=.25)) +
+      ggplot(dat, aes(x=White, y=MAT_mean_score, color=(Poverty<.5), fill=FALSE, alpha=.25)) +
         geom_point() +
         labs(title="Test Score -- Ethnicity")
       
     }
     else if(input$ds == "Ethnicity - African American"){
-       ggplot(dat, aes(x=Black, y=MAT_mean_score, color=("red"), fill=FALSE, alpha=.25)) +
+      ggplot(dat, aes(x=Black, y=MAT_mean_score, color=("red"), fill=FALSE, alpha=.25)) +
         geom_point() +
         labs(title="Test Score -- Ethnicity") +
         theme(legend.position="none")
@@ -187,11 +187,10 @@ server <- function(input, output) {
     }
   })
   
-  output$plot = renderPlot({plot(p(), data = dataset)})
+  output$plot = renderPlot({plot(p2(), data = dat)})
   output$lm = renderPrint({linReg()})
   
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
